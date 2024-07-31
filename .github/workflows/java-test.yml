@@ -48,8 +48,15 @@ jobs:
       run: chromedriver --version
 
     - name: Verify Google Chrome installation
-      run: google-chrome --version
-      shell: bash
+      run: powershell -Command "Get-Command google-chrome"
+
+    - name: Start Selenium server
+      run: |
+        New-Item -ItemType Directory -Force -Path C:\selenium
+        Invoke-WebRequest -Uri https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.1.2/selenium-server-4.1.2.jar -OutFile C:\selenium\selenium-server.jar
+        Start-Process -NoNewWindow -FilePath "java" -ArgumentList "-jar C:\selenium\selenium-server.jar standalone" -PassThru | Out-Null
+        Start-Sleep -Seconds 10
+      shell: powershell
 
     - name: Run tests with Maven
       env:
@@ -57,9 +64,14 @@ jobs:
       run: mvn test
       continue-on-error: true
 
-    - name: Print Maven test results
-      if: failure()
-      run: cat target/surefire-reports/*.txt
+    - name: Print Maven test results if exist
+      run: |
+        if (Test-Path -Path target/surefire-reports) {
+          Get-ChildItem -Path target/surefire-reports/*.txt | ForEach-Object { Get-Content $_.FullName }
+        } else {
+          Write-Output "No test results found in target/surefire-reports."
+        }
+      shell: powershell
 
     - name: Generate Allure Report
       if: success()
@@ -79,5 +91,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: test-results
+        path: target/surefire-reports
+
         path: target/surefire-reports
 
