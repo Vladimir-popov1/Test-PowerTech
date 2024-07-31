@@ -44,24 +44,40 @@ jobs:
         choco install googlechrome --version=114.0.5735.90
       shell: powershell
 
+    - name: Verify ChromeDriver installation
+      run: chromedriver --version
+
+    - name: Verify Google Chrome installation
+      run: google-chrome --version
+      shell: bash
+
     - name: Run tests with Maven
       env:
         SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
       run: mvn test
+      continue-on-error: true
+
+    - name: Print Maven test results
+      if: failure()
+      run: cat target/surefire-reports/*.txt
 
     - name: Generate Allure Report
+      if: success()
       run: |
         mvn allure:report
         mvn allure:serve
 
     - name: Upload Allure Report
+      if: success()
       uses: actions/upload-artifact@v2
       with:
         name: allure-report
         path: target/site/allure-maven-plugin
 
     - name: Upload test results
+      if: failure()
       uses: actions/upload-artifact@v2
       with:
         name: test-results
         path: target/surefire-reports
+
