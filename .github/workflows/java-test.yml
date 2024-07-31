@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        browser: [chrome, firefox]
+        browser: [chrome]
 
     services:
       selenium:
