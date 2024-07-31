@@ -92,6 +92,3 @@ jobs:
       with:
         name: test-results
         path: target/surefire-reports
-
-        path: target/surefire-reports
-
