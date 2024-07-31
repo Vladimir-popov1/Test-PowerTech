@@ -12,18 +12,6 @@ jobs:
   build:
     runs-on: windows-latest
 
-    strategy:
-      matrix:
-        browser: [chrome]
-
-    services:
-      selenium:
-        image: selenium/standalone-${{ matrix.browser }}:latest
-        ports:
-          - 4444:4444
-        options: >-
-          --shm-size 2g
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -51,6 +39,11 @@ jobs:
         Expand-Archive -Path chromedriver_win32.zip -DestinationPath C:\Users\runneradmin\AppData\Local\Temp\chdriver
         Copy-Item -Path C:\Users\runneradmin\AppData\Local\Temp\chdriver\chromedriver.exe -Destination C:\Windows\System32
 
+    - name: Set up Chrome
+      run: |
+        choco install googlechrome --version=114.0.5735.90
+      shell: powershell
+
     - name: Run tests with Maven
       env:
         SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
@@ -72,4 +65,3 @@ jobs:
       with:
         name: test-results
         path: target/surefire-reports
-
