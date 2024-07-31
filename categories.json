@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Flaky tests",
+    "matchedStatuses": ["failed"],
+    "traceRegex": ".*FlakyTestException.*"
+  },
+  {
+    "name": "Regression",
+    "matchedStatuses": ["failed"],
+    "messageRegex": ".*Regression.*"
+  },
+  {
+    "name": "Known Issues",
+    "matchedStatuses": ["failed"],
+    "traceRegex": ".*KnownIssue.*"
+  }
+]
