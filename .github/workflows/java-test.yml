@@ -10,7 +10,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
@@ -46,7 +45,31 @@ jobs:
     - name: Install Maven dependencies
       run: mvn dependency:go-offline
 
+    - name: Install ChromeDriver
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget unzip
+        wget -N https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip
+        unzip chromedriver_linux64.zip -d /usr/local/bin/
+
     - name: Run tests with Maven
       env:
         SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
       run: mvn test
+
+    - name: Generate Allure Report
+      run: |
+        mvn allure:report
+        mvn allure:serve
+
+    - name: Upload Allure Report
+      uses: actions/upload-artifact@v2
+      with:
+        name: allure-report
+        path: target/site/allure-maven-plugin
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-results
+        path: target/surefire-reports
