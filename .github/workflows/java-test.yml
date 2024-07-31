@@ -73,3 +73,7 @@ jobs:
       with:
         name: test-results
         path: target/surefire-reports
+
+      with:
+        name: test-results
+        path: target/surefire-reports
