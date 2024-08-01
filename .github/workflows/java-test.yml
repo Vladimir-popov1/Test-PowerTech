@@ -61,10 +61,16 @@ jobs:
       shell: powershell
 
     - name: Generate Allure Report
-      if: success()
       run: |
-        mvn allure:report
-        mvn allure:serve
+        if (Test-Path -Path target/surefire-reports) {
+          mvn allure:report
+          mvn allure:serve &
+          Start-Sleep -Seconds 30
+          Stop-Process -Name "java" -Force
+        } else {
+          Write-Output "No test results found in target/surefire-reports, skipping Allure report generation."
+        }
+      shell: powershell
 
     - name: Upload Allure Report
       if: success()
