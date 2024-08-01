@@ -64,7 +64,7 @@ jobs:
       run: |
         if (Test-Path -Path target/surefire-reports) {
           mvn allure:report
-          mvn allure:serve &
+          Start-Process -FilePath "mvn" -ArgumentList "allure:serve"
           Start-Sleep -Seconds 30
           Stop-Process -Name "java" -Force
         } else {
