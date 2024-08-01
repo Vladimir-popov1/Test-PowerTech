@@ -36,26 +36,13 @@ jobs:
     - name: Install ChromeDriver
       run: |
         Invoke-WebRequest -Uri https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_win32.zip -OutFile chromedriver_win32.zip
-        Expand-Archive -Path chromedriver_win32.zip -DestinationPath C:\Users\runneradmin\AppData\Local\Temp\chdriver
-        Copy-Item -Path C:\Users\runneradmin\AppData\Local\Temp\chdriver\chromedriver.exe -Destination C:\Windows\System32
-
-    - name: Set up Chrome
-      run: |
-        choco install googlechrome --version=114.0.5735.90
+        Expand-Archive -Path chromedriver_win32.zip -DestinationPath C:\Windows\System32
       shell: powershell
 
-    - name: Verify ChromeDriver installation
-      run: chromedriver --version
-
-    - name: Verify Google Chrome installation
-      run: powershell -Command "Get-Command google-chrome"
-
-    - name: Start Selenium server
+    - name: Install Google Chrome
       run: |
-        New-Item -ItemType Directory -Force -Path C:\selenium
-        Invoke-WebRequest -Uri https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.1.2/selenium-server-4.1.2.jar -OutFile C:\selenium\selenium-server.jar
-        Start-Process -NoNewWindow -FilePath "java" -ArgumentList "-jar C:\selenium\selenium-server.jar standalone" -PassThru | Out-Null
-        Start-Sleep -Seconds 10
+        Invoke-WebRequest -Uri https://dl.google.com/chrome/install/latest/chrome_installer.exe -OutFile chrome_installer.exe
+        Start-Process -FilePath chrome_installer.exe -Args "/silent /install" -NoNewWindow -Wait
       shell: powershell
 
     - name: Run tests with Maven
