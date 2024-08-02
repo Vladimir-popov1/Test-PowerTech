@@ -19,7 +19,7 @@ jobs:
     - name: Set up JDK 21
       uses: actions/setup-java@v2
       with:
-        distribution: 'adopt'
+        distribution: 'temurin'
         java-version: '21'
 
     - name: Cache Maven packages
@@ -53,30 +53,29 @@ jobs:
 
     - name: Print Maven test results if exist
       run: |
-        if (Test-Path -Path target/surefire-reports) {
-          Get-ChildItem -Path target/surefire-reports/*.txt | ForEach-Object { Get-Content $_.FullName }
+        if (Test-Path -Path target\surefire-reports) {
+          Get-ChildItem -Path target\surefire-reports\*.txt | ForEach-Object { Get-Content $_.FullName }
         } else {
           Write-Output "No test results found in target/surefire-reports."
         }
       shell: powershell
 
+    - name: Generate Allure Report
+      run: |
+        if (Test-Path -Path target\surefire-reports) {
+          mvn allure:report
+          Write-Output "Allure report generated at target/site/allure-maven-plugin"
+        } else {
+          Write-Output "No test results found in target/surefire-reports, skipping Allure report generation."
+        }
+      shell: powershell
 
-  - name: Generate Allure Report
-  run: |
-    if (Test-Path -Path target\surefire-reports) {
-      mvn allure:report
-      Write-Output "Allure report generated at target/site/allure-maven-plugin"
-    } else {
-      Write-Output "No test results found in target/surefire-reports, skipping Allure report generation."
-    }
-  shell: powershell
-  
-- name: Upload Allure Report
-  if: success()
-  uses: actions/upload-artifact@v2
-  with:
-    name: allure-report
-    path: target/site/allure-maven-plugin
+    - name: Upload Allure Report
+      if: success()
+      uses: actions/upload-artifact@v2
+      with:
+        name: allure-report
+        path: target/site/allure-maven-plugin
 
     - name: Upload test results
       if: failure()
