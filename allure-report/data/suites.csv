@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Fri Aug 02 17:38:25 MSK 2024","Fri Aug 02 17:40:07 MSK 2024","102335","","TestPowerTech.CheckInfoReportsPP1PP2","","TestPowerTech.CheckInfoReportsPP1PP2","checkInfoReportsPP1PP2","Сравнение данных в reports(user)pp1 с reports pp2",""
