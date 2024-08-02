@@ -51,15 +51,6 @@ jobs:
       run: mvn test
       continue-on-error: true
 
-    - name: Print Maven test results if exist
-      run: |
-        if (Test-Path -Path target\surefire-reports) {
-          Get-ChildItem -Path target\surefire-reports\*.txt | ForEach-Object { Get-Content $_.FullName }
-        } else {
-          Write-Output "No test results found in target/surefire-reports."
-        }
-      shell: powershell
-
     - name: Generate Allure Report
       run: |
         if (Test-Path -Path target\surefire-reports) {
@@ -70,16 +61,16 @@ jobs:
         }
       shell: powershell
 
-    - name: Upload Allure Report
-      if: success()
-      uses: actions/upload-artifact@v2
+    - name: Upload Allure Report Artifact
+      if: always()
+      uses: actions/upload-pages-artifact@v1
       with:
         name: allure-report
         path: target/site/allure-maven-plugin
 
-    - name: Upload test results
-      if: failure()
-      uses: actions/upload-artifact@v2
+    - name: Deploy Allure Report to GitHub Pages
+      if: always()
+      uses: peaceiris/actions-gh-pages@v3
       with:
-        name: test-results
-        path: target/surefire-reports
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: target/site/allure-maven-plugin
