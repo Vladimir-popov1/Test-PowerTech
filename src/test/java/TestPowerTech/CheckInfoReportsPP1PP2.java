@@ -136,16 +136,54 @@ public class CheckInfoReportsPP1PP2 {
 
         Allure.step("Выбор нужной даты и применение фильтра в PP2", () -> {
             LocalDate currentDate = LocalDate.now();
-            int currentDay = currentDate.getDayOfMonth();
-            int targetDay = currentDay - 2;
-            String daySelector = String.format("#dp-6 > div > div.container__main > div > div > div.container__days > a:nth-child(%d)", targetDay + 1);
+            LocalDate targetDate = currentDate.minusDays(2);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d"); // Форматируем дату как "день"
+            String targetDay = targetDate.format(formatter); // Преобразуем в строку
+
+            // Проверка, является ли текущая дата 1 или 2 числом месяца
+            if (currentDate.getDayOfMonth() == 1 || currentDate.getDayOfMonth() == 2) {
+                System.out.println("Текущая дата: " + currentDate.getDayOfMonth() + ". Переход на предыдущий месяц.");
+
+                // Переход на предыдущий месяц
+                try {
+                    WebElement previousMonthButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(".button-previous-month")));
+                    if (previousMonthButton.isDisplayed()) {
+                        previousMonthButton.click();
+                        System.out.println("Перешли на предыдущий месяц.");
+                    } else {
+                        System.out.println("Кнопка перехода на предыдущий месяц не видима.");
+                    }
+                } catch (Exception e) {
+                    System.out.println("Не удалось перейти на предыдущий месяц. Ошибка: " + e.getMessage());
+                    return; // Завершаем выполнение, если не удалось перейти на предыдущий месяц
+                }
+            } else {
+                System.out.println("Текущая дата: " + currentDate.getDayOfMonth() + ". Переход на предыдущий месяц не требуется.");
+            }
+
+            // Формирование XPath для нужного дня
+            String dayXPath = String.format("//*[contains(@class, 'day-item') and text()='%s']", targetDay);
+
+            // Ожидание и выбор нужного дня
             Actions actions = new Actions(driver);
-            WebElement dayElement = new WebDriverWait(driver, Duration.ofSeconds(30)).until(ExpectedConditions.elementToBeClickable(By.cssSelector(daySelector)));
-            actions.doubleClick(dayElement).perform();
+            try {
+                WebElement dayElement = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(dayXPath)));
+                actions.doubleClick(dayElement).perform();
+                System.out.println("Кнопка дня '" + targetDay + "' была успешно кликнута.");
+            } catch (Exception e) {
+                System.out.println("Кнопка дня '" + targetDay + "' не найдена или не кликабельна. Ошибка: " + e.getMessage());
+            }
+
+            // Клик на кнопку OK
+            try {
+                Thread.sleep(5000);
+                WebElement okButton = driver.findElement(By.xpath("//button[@class='button-apply']"));
+                okButton.click(); // Клик кнопки ОК
+                System.out.println("Кнопка OK была успешно кликнута.");
+            } catch (Exception e) {
+                System.out.println("Кнопка OK не найдена или не кликабельна. Ошибка: " + e.getMessage());
+            }
             Thread.sleep(10000);
-            WebElement okButton = driver.findElement(By.xpath("//button[@class='button-apply']"));
-            okButton.click();
-            Thread.sleep(15000);
         });
 
         Allure.step("Сбор метрик из отчетов PP2 и сравнение с PP1", () -> {
