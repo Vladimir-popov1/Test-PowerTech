@@ -72,7 +72,6 @@ jobs:
       if: always()
       uses: peaceiris/actions-gh-pages@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         publish_dir: ./target/site/allure-maven-plugin
-        destination_dir: /
-        cname: '<YOUR_GITHUB_PAGES_DOMAIN>'
+        destination_dir: allure-report
