@@ -46,6 +46,13 @@ jobs:
         Start-Process -FilePath chrome_installer.exe -Args "/silent /install" -NoNewWindow -Wait
       shell: powershell
 
+    - name: Clean Allure Report Directory
+      run: |
+        if (Test-Path -Path target\allure-report) {
+          Remove-Item -Recurse -Force target\allure-report
+        }
+      shell: powershell
+
     - name: Run tests with Maven
       env:
         SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
@@ -69,19 +76,20 @@ jobs:
         name: allure-report
         path: target/allure-report
 
+    - name: Create .nojekyll file
+      run: New-Item -Path target/allure-report/.nojekyll -ItemType File -Force
+      shell: powershell
+
     - name: Deploy Allure Report to GitHub Pages
       if: always()
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         publish_dir: ./target/allure-report
-        destination_dir: allure-report
         publish_branch: gh-pages
         allow_empty_commit: false
         keep_files: false
         force_orphan: false
         enable_jekyll: false
-        disable_nojekyll: false
-        exclude_assets: .github
       env:
         JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.4-7.0\x64
