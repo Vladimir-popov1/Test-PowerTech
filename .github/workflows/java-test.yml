@@ -46,6 +46,10 @@ jobs:
         Start-Process -FilePath chrome_installer.exe -Args "/silent /install" -NoNewWindow -Wait
       shell: powershell
 
+    - name: Clean Allure Report Directory
+      run: Remove-Item -Recurse -Force target\allure-report
+      shell: powershell
+
     - name: Run tests with Maven
       env:
         SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
