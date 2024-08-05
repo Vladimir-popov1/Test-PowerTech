@@ -76,6 +76,10 @@ jobs:
         name: allure-report
         path: target/allure-report
 
+    - name: Create .nojekyll file
+      run: New-Item -Path target/allure-report/.nojekyll -ItemType File -Force
+      shell: powershell
+
     - name: Deploy Allure Report to GitHub Pages
       if: always()
       uses: peaceiris/actions-gh-pages@v3
