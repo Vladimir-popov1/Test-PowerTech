@@ -22,10 +22,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class CheckInfoReportsPP1PP2 {
     private WebDriver driver;
     private Map<String, String> metricsPP1;
+    private WebDriverWait wait;
+    private Actions actions;
 
     @BeforeEach
     public void setUp() {
         driver = new ChromeDriver();
+        wait = new WebDriverWait(driver, Duration.ofSeconds(30));
+        actions = new Actions(driver);
     }
 
     @AfterEach
