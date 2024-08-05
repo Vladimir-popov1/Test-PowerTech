@@ -57,7 +57,7 @@ jobs:
           mvn allure:report
         } else {
           Write-Output 'No test results found in target/surefire-reports, skipping Allure report generation.'
-        }
+        fi
       shell: powershell
 
     - name: Upload Allure Report Artifact
@@ -65,12 +65,19 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: allure-report
-        path: target/site/allure-maven-plugin
+        path: target/allure-report
 
     - name: Deploy Allure Report to GitHub Pages
       if: always()
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./target/site/allure-maven-plugin
+        publish_dir: ./target/allure-report
         destination_dir: allure-report
+        publish_branch: gh-pages
+        allow_empty_commit: false
+        keep_files: false
+        force_orphan: false
+        enable_jekyll: false
+        disable_nojekyll: false
+        exclude_assets: .github
