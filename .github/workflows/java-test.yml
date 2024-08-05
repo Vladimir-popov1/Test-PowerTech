@@ -3,16 +3,16 @@ name: Java CI with Maven
 on:
   workflow_dispatch:
     inputs:
-      run_check_info_reports:
-        description: 'Run CheckInfoReportsPP1PP2'
+      test_selection:
+        description: 'Choose the test(s) to run'
         required: true
-        default: 'false'
-        type: boolean
-      run_check_scraper_info:
-        description: 'Run CheckScraperInfo'
-        required: true
-        default: 'false'
-        type: boolean
+        default: 'None'
+        type: choice
+        options:
+          - 'CheckInfoReportsPP1PP2'
+          - 'CheckScraperInfo'
+          - 'All'
+          - 'None'
 jobs:
   build:
     runs-on: windows-latest
