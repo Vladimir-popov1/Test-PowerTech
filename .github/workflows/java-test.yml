@@ -47,7 +47,10 @@ jobs:
       shell: powershell
 
     - name: Clean Allure Report Directory
-      run: Remove-Item -Recurse -Force target\allure-report
+      run: |
+        if (Test-Path -Path target\allure-report) {
+          Remove-Item -Recurse -Force target\allure-report
+        }
       shell: powershell
 
     - name: Run tests with Maven
