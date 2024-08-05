@@ -1,17 +1,17 @@
 name: Java CI with Maven
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
+    inputs:
+      test:
+        description: 'Run tests and generate Allure report'
+        required: true
+        default: 'true'
+        type: boolean
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - name: Checkout repository
@@ -30,21 +30,20 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
-
     - name: Install Maven dependencies
       run: mvn dependency:go-offline
 
     - name: Install ChromeDriver
       run: |
-        curl -o chromedriver.zip https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip
-        unzip chromedriver.zip
-        sudo mv chromedriver /usr/local/bin/
-        rm chromedriver.zip
+        Invoke-WebRequest -Uri https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_win32.zip -OutFile chromedriver_win32.zip
+        Expand-Archive -Path chromedriver_win32.zip -DestinationPath C:\Windows\System32
+      shell: powershell
 
     - name: Install Google Chrome
       run: |
-        sudo apt-get update
-        sudo apt-get install -y google-chrome-stable
+        Invoke-WebRequest -Uri https://dl.google.com/chrome/install/latest/chrome_installer.exe -OutFile chrome_installer.exe
+        Start-Process -FilePath chrome_installer.exe -Args "/silent /install" -NoNewWindow -Wait
+      shell: powershell
 
     - name: Run tests with Maven
       env:
@@ -54,23 +53,25 @@ jobs:
 
     - name: Generate Allure Report
       run: |
-        if [ -d "target/surefire-reports" ]; then
+        if (Test-Path -Path target\surefire-reports) {
           mvn allure:report
-        else
-          echo "No test results found in target/surefire-reports, skipping Allure report generation."
-        fi
+          Write-Output "Allure report generated at target/site/allure-maven-plugin"
+        } else {
+          Write-Output "No test results found in target/surefire-reports, skipping Allure report generation."
+        }
+      shell: powershell
 
-    - name: Upload Allure Report
-      if: success()
+    - name: Upload Allure Report Artifact
+      if: always()
       uses: actions/upload-artifact@v2
       with:
         name: allure-report
-        path: target/allure-report
+        path: target/site/allure-maven-plugin
 
     - name: Deploy Allure Report to GitHub Pages
       if: always()
       uses: peaceiris/actions-gh-pages@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./target/allure-report
+        github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        publish_dir: ./target/site/allure-maven-plugin
         destination_dir: allure-report
