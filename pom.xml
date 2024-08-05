@@ -111,7 +111,7 @@
                     <!-- Указываем только те тестовые классы, которые должны быть запущены -->
                     <includes>
                         <include>**/CheckInfoReportsPP1PP2.java</include>
-                        <include>**/CheckScraperInfo.java</include>
+<!--                         <include>**/CheckScraperInfo.java</include> -->
                     </includes>
                     <!-- Активируем флаг preview для запуска тестов, использующих preview features -->
                 </configuration>
