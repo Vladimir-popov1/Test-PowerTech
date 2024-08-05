@@ -47,8 +47,6 @@ jobs:
       shell: powershell
 
     - name: Run tests with Maven
-      env:
-        SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
       run: mvn test
       continue-on-error: true
 
@@ -67,12 +65,12 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: allure-report
-        path: target/allure-report
+        path: target/site/allure-maven-plugin
 
     - name: Deploy Allure Report to GitHub Pages
       if: always()
       uses: peaceiris/actions-gh-pages@v3
       with:
-        github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-        publish_dir: ./target/allure-report
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./target/site/allure-maven-plugin
         destination_dir: allure-report
