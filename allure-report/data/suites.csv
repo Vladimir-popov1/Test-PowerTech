@@ -1,2 +1,2 @@
 "Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
-"passed","Mon Aug 05 09:30:25 UTC 2024","Mon Aug 05 09:32:23 UTC 2024","117268","","TestPowerTech.CheckInfoReportsPP1PP2","","TestPowerTech.CheckInfoReportsPP1PP2","checkInfoReportsPP1PP2","Сравнение данных в reports(user)pp1 с reports pp2",""
+"passed","Mon Aug 05 09:40:29 UTC 2024","Mon Aug 05 09:42:21 UTC 2024","111236","","TestPowerTech.CheckInfoReportsPP1PP2","","TestPowerTech.CheckInfoReportsPP1PP2","checkInfoReportsPP1PP2","Сравнение данных в reports(user)pp1 с reports pp2",""
