@@ -52,21 +52,20 @@ jobs:
       continue-on-error: true
 
     - name: Generate Allure Report
+      if: ${{ github.event.inputs.test == 'true' }}
       run: |
-        if (Test-Path -Path target\surefire-reports) {
+        if [ -d "target/surefire-reports" ]; then
           mvn allure:report
-          Write-Output "Allure report generated at target/site/allure-maven-plugin"
-        } else {
-          Write-Output "No test results found in target/surefire-reports, skipping Allure report generation."
-        }
-      shell: powershell
+        else
+          echo "No test results found in target/surefire-reports, skipping Allure report generation."
+        fi
 
     - name: Upload Allure Report Artifact
       if: always()
       uses: actions/upload-artifact@v2
       with:
         name: allure-report
-        path: target/site/allure-maven-plugin
+        path: target/allure-report
 
     - name: Deploy Allure Report to GitHub Pages
       if: always()
