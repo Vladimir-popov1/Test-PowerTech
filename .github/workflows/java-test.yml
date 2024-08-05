@@ -53,25 +53,24 @@ jobs:
 
     - name: Generate Allure Report
       run: |
-        if (Test-Path -Path target\surefire-reports) {
+        if (Test-Path -Path target/surefire-reports) {
           mvn allure:report
-          Write-Output "Allure report generated at target/site/allure-maven-plugin"
         } else {
           Write-Output "No test results found in target/surefire-reports, skipping Allure report generation."
         }
       shell: powershell
 
-    - name: Upload Allure Report Artifact
-      if: always()
+    - name: Upload Allure Report
+      if: success()
       uses: actions/upload-artifact@v2
       with:
         name: allure-report
-        path: target/site/allure-maven-plugin
+        path: target/allure-report  # Обновленный путь
 
     - name: Deploy Allure Report to GitHub Pages
       if: always()
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-        publish_dir: ./target/site/allure-maven-plugin
+        publish_dir: ./target/allure-report  # Обновленный путь
         destination_dir: allure-report
