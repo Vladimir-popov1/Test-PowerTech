@@ -30,6 +30,7 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
+
     - name: Install Maven dependencies
       run: mvn dependency:go-offline
 
@@ -54,11 +55,12 @@ jobs:
     - name: Generate Allure Report
       if: ${{ github.event.inputs.test == 'true' }}
       run: |
-        if [ -d "target/surefire-reports" ]; then
+        if (Test-Path -Path 'target/surefire-reports') {
           mvn allure:report
-        else
-          echo "No test results found in target/surefire-reports, skipping Allure report generation."
-        fi
+        } else {
+          Write-Output 'No test results found in target/surefire-reports, skipping Allure report generation.'
+        }
+      shell: powershell
 
     - name: Upload Allure Report Artifact
       if: always()
@@ -72,5 +74,5 @@ jobs:
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-        publish_dir: ./target/site/allure-maven-plugin
+        publish_dir: ./target/allure-report
         destination_dir: allure-report
