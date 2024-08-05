@@ -47,6 +47,8 @@ jobs:
       shell: powershell
 
     - name: Run tests with Maven
+      env:
+        SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
       run: mvn test
       continue-on-error: true
 
@@ -57,7 +59,7 @@ jobs:
           mvn allure:report
         } else {
           Write-Output 'No test results found in target/surefire-reports, skipping Allure report generation.'
-        fi
+        }
       shell: powershell
 
     - name: Upload Allure Report Artifact
@@ -71,7 +73,7 @@ jobs:
       if: always()
       uses: peaceiris/actions-gh-pages@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         publish_dir: ./target/allure-report
         destination_dir: allure-report
         publish_branch: gh-pages
@@ -81,3 +83,5 @@ jobs:
         enable_jekyll: false
         disable_nojekyll: false
         exclude_assets: .github
+      env:
+        JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.4-7.0\x64
