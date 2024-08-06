@@ -101,21 +101,33 @@
                     <source>11</source>
                     <target>11</target>
                 </configuration>
-            </plugin>
-            <!-- Maven Surefire Plugin -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
-                <configuration>
-                    <!-- Указываем только те тестовые классы, которые должны быть запущены -->
-                    <includes>
-                        <include>**/CheckInfoReportsPP1PP2.java</include>
-<!--                         <include>**/CheckScraperInfo.java</include> -->
-                    </includes>
-                    <!-- Активируем флаг preview для запуска тестов, использующих preview features -->
-                </configuration>
-            </plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.0.0-M5</version>
+                    <configuration>
+                        <includes>
+                            <include>**/CheckInfoReportsPP1PP2.java</include>
+                        </includes>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </build>
+    </profile>
+    <profile>
+        <id>check-scraper-info</id>
+        <build>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.0.0-M5</version>
+                    <configuration>
+                        <includes>
+                            <include>**/CheckScraperInfo.java</include>
+                        </includes>
+                    </configuration>
+                </plugin>
             <!-- Allure Maven Plugin -->
             <plugin>
                 <groupId>io.qameta.allure</groupId>
