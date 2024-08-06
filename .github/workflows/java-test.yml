@@ -3,16 +3,11 @@ name: Java CI with Maven
 on:
   workflow_dispatch:
     inputs:
-      test_selection:
-        description: 'Choose the test(s) to run'
+      test:
+        description: 'Run tests and generate Allure report'
         required: true
-        default: 'None'
-        type: choice
-        options:
-          - 'CheckInfoReportsPP1PP2'
-          - 'CheckScraperInfo'
-          - 'All'
-          - 'None'
+        default: 'true'
+        type: boolean
 jobs:
   build:
     runs-on: windows-latest
