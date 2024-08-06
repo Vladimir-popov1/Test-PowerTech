@@ -1,4 +1,4 @@
-name: Test PowerTech PUAN
+name: Java CI with Maven
 
 on:
   workflow_dispatch:
@@ -65,9 +65,22 @@ jobs:
 
     - name: Check database connectivity
       run: |
-        echo "Checking database connectivity..."
+        echo "Checking database connectivity with telnet..."
+        if ! command -v telnet &> /dev/null; then
+          echo "Installing telnet..."
+          sudo apt-get update
+          sudo apt-get install -y telnet
+        fi
+        telnet nmm-ue1-test-rds-pp1-mysql.cyfcbagzyvft.us-east-1.rds.amazonaws.com 3306
+      shell: bash
+
+    - name: Check database connectivity with mysql
+      run: |
+        echo "Checking database connectivity with mysql..."
         mysql -h nmm-ue1-test-rds-pp1-mysql.cyfcbagzyvft.us-east-1.rds.amazonaws.com -P 3306 -u ppuser -puTBHF35D9QqvLMh1X1FBX93nGgnqpgBc -e "select 1"
       shell: bash
+      env:
+        MYSQL_PWD: uTBHF35D9QqvLMh1X1FBX93nGgnqpgBc
 
     - name: Run tests with Maven
       shell: powershell
