@@ -72,14 +72,17 @@ jobs:
       continue-on-error: true
 
     - name: List test results directory
+      if: always()
       run: dir target\surefire-reports
       shell: powershell
 
     - name: List allure-results directory
+      if: always()
       run: dir target\allure-results
       shell: powershell
 
     - name: Generate Allure Report
+      if: always()
       run: |
         if (Test-Path -Path 'target/allure-results') {
           mvn allure:report
@@ -89,6 +92,7 @@ jobs:
       shell: powershell
 
     - name: List allure-report directory
+      if: always()
       run: dir target\allure-report
       shell: powershell
 
