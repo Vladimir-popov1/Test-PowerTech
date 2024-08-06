@@ -59,16 +59,19 @@ jobs:
       shell: powershell
 
     - name: Run tests with Maven
+      env:
+        SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
       run: |
-        if [ "${{ github.event.inputs.run_check_info_reports }}" = "true" ]; then
+        if (${{ github.event.inputs.run_check_info_reports }} -eq 'true') {
           mvn test -Dtest=CheckInfoReportsPP1PP2
-        fi
-        if [ "${{ github.event.inputs.run_check_scraper_info }}" = "true" ]; then
+        }
+        if (${{ github.event.inputs.run_check_scraper_info }} -eq 'true') {
           mvn test -Dtest=CheckScraperInfo
-        fi
-      continue-on-error: true
+        }
+      shell: powershell
 
     - name: Generate Allure Report
+      if: ${{ github.event.inputs.run_check_info_reports == 'true' || github.event.inputs.run_check_scraper_info == 'true' }}
       run: |
         if (Test-Path -Path 'target/surefire-reports') {
           mvn allure:report
