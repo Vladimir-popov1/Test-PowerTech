@@ -41,14 +41,17 @@ public class CheckFeeTagComission {
     public void checkFeeTagComission() throws InterruptedException, SQLException {
         DecimalFormat df = new DecimalFormat("#0.00");
         //1-й сценарий FALSE
+        Allure.step("Авторизация в БД");
         String dbUrl = "jdbc:mysql://nmm-ue1-test-rds-pp1-mysql.cyfcbagzyvft.us-east-1.rds.amazonaws.com:3306/db"; //Host BD
         String username = "ppuser"; //username
         String password = "uTBHF35D9QqvLMh1X1FBX93nGgnqpgBc"; //pass
         Connection connection = null;
+        Allure.step("Авторизация ПП1");
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
         AuthorizationPP1 authorization = new AuthorizationPP1();
         authorization.authorizePP1(driver); //Авторизация ПП1
         //scrap info
+        Allure.step("Начало скрапинга данных");
         var clickLogs = driver.findElement(By.cssSelector("a[href='/logs']"));
         clickLogs.click();
         var todayStr1 = LocalDate.now();
@@ -66,6 +69,7 @@ public class CheckFeeTagComission {
         var runAdx = driver.findElement(By.xpath("//a[text()='Run Adx scraper']"));
         runAdx.click();
         Thread.sleep(10000);
+        Allure.step("Изменение статуса комиссии в аккаунте");
         var accounts = driver.findElement(By.cssSelector("a[href='/accounts']")); // выбор поля аккаунт
         accounts.click();
         var searchAccounts = driver.findElement(By.cssSelector("input[type='search']")); // выбор поля поиска
@@ -78,6 +82,7 @@ public class CheckFeeTagComission {
         enabledClick.click(); //Enabled клик
         var save = driver.findElement(By.cssSelector("#formAccountEdit > button")); //выбор save
         save.click();
+        Allure.step("Генерация отчета");
         Reports reports = new Reports();
         reports.reportsPP1(driver);//Репорт //report gen
         // Подключение к базе данных с попыткой повторного подключения
@@ -90,6 +95,7 @@ public class CheckFeeTagComission {
             } catch (SQLException e) {
                 retryCount++;
                 System.err.println("Не удалось подключиться к базе данных. Попытка " + retryCount + " из 3.");
+                Allure.step("Не удалось подключиться к базе данных. Попытка " + retryCount + " из 3.", () -> e.printStackTrace());
                 e.printStackTrace();
                 Thread.sleep(5000); // Задержка перед повторной попыткой
             }
@@ -98,7 +104,7 @@ public class CheckFeeTagComission {
         if (!isConnected) {
             throw new SQLException("Не удалось подключиться к базе данных после 3 попыток.");
         }
-
+        Allure.step("Проверка disable_adx_fees = false в базе данных");
         Statement statement = connection.createStatement();
         String query = "SELECT * FROM db.userSettings WHERE userId = 16730 AND settingKey = 'disable_adx_fees'";
         ResultSet resultSet = statement.executeQuery(query);
@@ -107,13 +113,17 @@ public class CheckFeeTagComission {
             boolean disableAdxFees = resultSet.getBoolean("settingValue");
             if (!disableAdxFees) {
                 System.out.println("Проверка пройдена: disable_adx_fees = false");
+                Allure.step("Проверка пройдена: disable_adx_fees = false");
             } else {
                 System.out.println("Проверка не пройдена: disable_adx_fees = true");
+                Allure.step("Проверка не пройдена: disable_adx_fees = true");
             }
         } else {
             System.out.println("Проверка не пройдена: Запись не найдена");
+            Allure.step("Проверка не пройдена: Запись не найдена");
         }
         Thread.sleep(10000);
+        Allure.step("Переход к отчетам пользователя");
         var accounts1 = driver.findElement(By.cssSelector("a[href='/accounts']")); // выбор поля аккаунт
         accounts1.click();
         var searchAccounts1 = driver.findElement(By.cssSelector("input[type='search']")); // выбор поля поиска
@@ -135,6 +145,7 @@ public class CheckFeeTagComission {
         lastDateReports.sendKeys(newDaysOneStr); // вставка числа в даты 2
         var apply1 = driver.findElement(By.cssSelector("button[id=btnApplyDates]")); // кнопка apply
         apply1.click(); // клик apply
+        Allure.step("Выбор рекламных единиц в отчете");
         var dropDown = driver.findElement(By.cssSelector("body > div.reports-tabular.container > div.table-wrapper > form > div > div.wrapper-block > div.inline-block.table-select-ad-units_wrapper > div")); //кнопка дропдауна
         dropDown.click(); // клик дропдауна
         String[] placementsToSelect = {
@@ -151,6 +162,7 @@ public class CheckFeeTagComission {
         dropDown.click(); // клик дропдауна
         var apply2 = driver.findElement(By.cssSelector("button[id=btnApplyDates]")); // кнопка apply
         apply2.click(); // клик apply
+        Allure.step("Проверка данных в UI и базе данных для первого сценария");
         // Нахождение всех строк таблицы
         List<WebElement> oddRows = driver.findElements(By.cssSelector("#tblData > tbody > tr.odd"));
         List<WebElement> evenRows = driver.findElements(By.cssSelector("#tblData > tbody > tr.even"));
@@ -207,8 +219,10 @@ public class CheckFeeTagComission {
 
         for (String result : results) {
             System.out.println(result);
+            Allure.step(result);
         }
         //2-й сценарий TRUE
+        Allure.step("Изменение статуса комиссии в аккаунте на Disabled");
         var accounts2 = driver.findElement(By.cssSelector("a[href='/accounts']")); // выбор поля аккаунт
         accounts2.click();
         var searchAccounts2 = driver.findElement(By.cssSelector("input[type='search']")); // выбор поля поиска
@@ -221,6 +235,7 @@ public class CheckFeeTagComission {
         disabledClick.click(); //Disabled клик
         var save1 = driver.findElement(By.cssSelector("#formAccountEdit > button")); //выбор save
         save1.click();
+        Allure.step("Генерация отчета после изменения статуса комиссии");
         Reports reports1 = new Reports();
         reports.reportsPP1(driver);//Репорт //report gen
         Thread.sleep(10000);
@@ -229,20 +244,25 @@ public class CheckFeeTagComission {
         ResultSet resultSet1 = statement1.executeQuery(query1);
 
         // Обработка результатов запроса
+        Allure.step("Проверка disable_adx_fees = true в базе данных");
         if (resultSet1.next()) {
             String settingValue = resultSet1.getString("settingValue");
 
             // Проверка значения settingValue и вывод соответствующего сообщения
             if (settingValue.equalsIgnoreCase("true")) {
                 System.out.println("Проверка пройдена: disable_adx_fees = true");
+                Allure.step("Проверка пройдена: disable_adx_fees = true");
             } else {
                 System.out.println("Проверка не пройдена: disable_adx_fees = false");
+                Allure.step("Проверка не пройдена: disable_adx_fees = false");
             }
         } else {
             System.out.println("Проверка не пройдена: Запись не найдена");
+            Allure.step("Проверка не пройдена: Запись не найдена");
         }
 //            var showReports = driver.findElement(By.cssSelector("#formAccountEdit > a")); // check showReports
 //            showReports.click(); // click reports
+        Allure.step("Переход к отчетам пользователя после изменения статуса");
         var accounts4 = driver.findElement(By.cssSelector("a[href='/accounts']")); // выбор поля аккаунт
         accounts4.click();
         var searchAccounts4 = driver.findElement(By.cssSelector("input[type='search']")); // выбор поля поиска
@@ -265,6 +285,7 @@ public class CheckFeeTagComission {
         var apply3 = driver.findElement(By.cssSelector("button[id=btnApplyDates]")); // кнопка apply
         apply3.click(); // клик apply
         Thread.sleep(5000);
+        Allure.step("Выбор рекламных единиц в отчете после изменения статуса");
         var dropDown1 = driver.findElement(By.cssSelector("body > div.reports-tabular.container > div.table-wrapper > form > div > div.wrapper-block > div.inline-block.table-select-ad-units_wrapper > div")); //кнопка дропдауна
         dropDown1.click(); // клик дропдауна
         String[] placementsToSelect1 = {
@@ -283,6 +304,7 @@ public class CheckFeeTagComission {
         var apply4 = driver.findElement(By.cssSelector("button[id=btnApplyDates]")); // кнопка apply
         apply4.click(); // клик apply
         // Нахождение всех строк таблицы
+        Allure.step("Проверка данных в UI и базе данных для второго сценария");
         List<WebElement> oddRows1 = driver.findElements(By.cssSelector("#tblData > tbody > tr.odd"));
         List<WebElement> evenRows1 = driver.findElements(By.cssSelector("#tblData > tbody > tr.even"));
 
@@ -330,6 +352,7 @@ public class CheckFeeTagComission {
 // Вывод всех результатов после обработки
         for (String result1 : results1) {
             System.out.println(result1);
+            Allure.step(result1);
         }
 
         resultSet.close();
@@ -337,7 +360,6 @@ public class CheckFeeTagComission {
         connection.close();
     }
 }
-
 
 
 
