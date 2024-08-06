@@ -78,6 +78,7 @@ jobs:
         SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
         RUN_CHECK_INFO_REPORTS: ${{ github.event.inputs.run_check_info_reports }}
         RUN_CHECK_SCRAPER_INFO: ${{ github.event.inputs.run_check_scraper_info }}
+        RUN_CHECK_FEE_TAG_COMISSION: ${{ github.event.inputs.run_check_fee_tag_comission }}
 
     - name: Generate Allure Report
       run: |
