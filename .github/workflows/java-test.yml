@@ -13,6 +13,12 @@ on:
         required: true
         default: 'false'
         type: boolean
+      run_check_fee_tag_comission:
+        description: 'Run CheckFeeTagComission'
+        required: true
+        default: 'false'
+        type: boolean
+
 
 jobs:
   build:
