@@ -1,0 +1,2 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Tue Aug 06 08:06:31 UTC 2024","Tue Aug 06 08:10:57 UTC 2024","265927","","TestPowerTech.CheckScraperInfo","","TestPowerTech.CheckScraperInfo","checkScraperInfo","checkScraperInfo()",""
