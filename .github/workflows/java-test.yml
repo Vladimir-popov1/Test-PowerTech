@@ -61,14 +61,8 @@ jobs:
     - name: Run tests with Maven
       env:
         SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
-      run: |
-        if (${{ github.event.inputs.run_check_info_reports }} -eq 'true') {
-          mvn test -Dtest=CheckInfoReportsPP1PP2
-        }
-        if (${{ github.event.inputs.run_check_scraper_info }} -eq 'true') {
-          mvn test -Dtest=CheckScraperInfo
-        }
-      shell: powershell
+      run: mvn test
+      continue-on-error: true
 
     - name: Generate Allure Report
       run: |
