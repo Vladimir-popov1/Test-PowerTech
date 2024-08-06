@@ -3,10 +3,15 @@ name: Java CI with Maven
 on:
   workflow_dispatch:
     inputs:
-      test:
-        description: 'Run tests and generate Allure report'
+      run_check_info_reports:
+        description: 'Run CheckInfoReportsPP1PP2'
         required: true
-        default: 'true'
+        default: 'false'
+        type: boolean
+      run_check_scraper_info:
+        description: 'Run CheckScraperInfo'
+        required: true
+        default: 'false'
         type: boolean
 jobs:
   build:
