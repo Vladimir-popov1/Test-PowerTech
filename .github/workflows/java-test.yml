@@ -73,6 +73,9 @@ jobs:
         if ($env:RUN_CHECK_SCRAPER_INFO -eq 'true') {
           mvn test -Dtest=CheckScraperInfo
         }
+        if ($env:RUN_CHECK_FEE_TAG_COMISSION -eq 'true') {
+          mvn test -Dtest=CheckFeeTagComission
+        }
       env:
         JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.4-7.0\x64
         SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
