@@ -73,19 +73,26 @@ jobs:
 
     - name: List test results directory
       if: always()
-      run: dir target\surefire-reports
+      run: Get-ChildItem -Recurse target\surefire-reports
       shell: powershell
 
     - name: List allure-results directory
       if: always()
-      run: dir target\allure-results
+      run: Get-ChildItem -Recurse target\allure-results
+      shell: powershell
+
+    - name: Install Allure CLI
+      run: |
+        Invoke-WebRequest -Uri https://github.com/allure-framework/allure2/releases/download/2.13.8/allure-2.13.8.zip -OutFile allure.zip
+        Expand-Archive -Path allure.zip -DestinationPath allure
+        $env:PATH += ";$PWD\allure\allure-2.13.8\bin"
       shell: powershell
 
     - name: Generate Allure Report
       if: always()
       run: |
         if (Test-Path -Path 'target/allure-results') {
-          mvn allure:report
+          allure generate target/allure-results -o target/allure-report --clean
         } else {
           Write-Output 'No allure results found in target/allure-results, skipping Allure report generation.'
         }
@@ -93,7 +100,7 @@ jobs:
 
     - name: List allure-report directory
       if: always()
-      run: dir target\allure-report
+      run: Get-ChildItem -Recurse target\allure-report
       shell: powershell
 
     - name: Upload Allure Report Artifact
