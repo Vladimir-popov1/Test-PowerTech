@@ -71,11 +71,8 @@ jobs:
       continue-on-error: true
       shell: powershell
 
-    - name: List test result directories
-      run: |
-        Get-ChildItem -Recurse target/surefire-reports
-        Get-ChildItem -Recurse target/allure-results
-        Get-ChildItem -Recurse target/allure-report
+    - name: List allure-results directory
+      run: Get-ChildItem -Recurse target/allure-results
       shell: powershell
 
     - name: Generate Allure Report
@@ -85,6 +82,10 @@ jobs:
         } else {
           Write-Output 'No test results found in target/allure-results, skipping Allure report generation.'
         }
+      shell: powershell
+
+    - name: List allure-report directory
+      run: Get-ChildItem -Recurse target/allure-report
       shell: powershell
 
     - name: Upload Allure Report Artifact
