@@ -71,7 +71,6 @@ jobs:
       shell: powershell
 
     - name: Generate Allure Report
-      if: ${{ github.event.inputs.run_check_info_reports == 'true' || github.event.inputs.run_check_scraper_info == 'true' }}
       run: |
         if (Test-Path -Path 'target/surefire-reports') {
           mvn allure:report
@@ -81,7 +80,6 @@ jobs:
       shell: powershell
 
     - name: Upload Allure Report Artifact
-      if: always()
       uses: actions/upload-artifact@v2
       with:
         name: allure-report
@@ -92,7 +90,6 @@ jobs:
       shell: powershell
 
     - name: Deploy Allure Report to GitHub Pages
-      if: always()
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
