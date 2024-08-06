@@ -59,21 +59,19 @@ jobs:
       shell: powershell
 
     - name: Run tests with Maven
-      env:
-        SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
+      shell: powershell
       run: |
-        if ( ${{ github.event.inputs.run_check_info_reports }} ) {
+        if ($env:RUN_CHECK_INFO_REPORTS -eq 'true') {
           mvn test -Dtest=CheckInfoReportsPP1PP2
         }
-        if ( ${{ github.event.inputs.run_check_scraper_info }} ) {
+        if ($env:RUN_CHECK_SCRAPER_INFO -eq 'true') {
           mvn test -Dtest=CheckScraperInfo
         }
-      continue-on-error: true
-      shell: powershell
-
-    - name: List allure-results directory
-      run: Get-ChildItem -Recurse target/allure-results
-      shell: powershell
+      env:
+        JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.4-7.0\x64
+        SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
+        RUN_CHECK_INFO_REPORTS: ${{ github.event.inputs.run_check_info_reports }}
+        RUN_CHECK_SCRAPER_INFO: ${{ github.event.inputs.run_check_scraper_info }}
 
     - name: Generate Allure Report
       run: |
