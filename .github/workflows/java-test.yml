@@ -19,7 +19,6 @@ on:
         default: 'false'
         type: boolean
 
-
 jobs:
   build:
     runs-on: windows-latest
@@ -64,6 +63,12 @@ jobs:
         New-Item -Path target/allure-report -ItemType Directory -Force
       shell: powershell
 
+    - name: Check database connectivity
+      run: |
+        echo "Checking database connectivity..."
+        mysql -h nmm-ue1-test-rds-pp1-mysql.cyfcbagzyvft.us-east-1.rds.amazonaws.com -P 3306 -u ppuser -puTBHF35D9QqvLMh1X1FBX93nGgnqpgBc -e "select 1"
+      shell: bash
+
     - name: Run tests with Maven
       shell: powershell
       run: |
@@ -82,6 +87,9 @@ jobs:
         RUN_CHECK_INFO_REPORTS: ${{ github.event.inputs.run_check_info_reports }}
         RUN_CHECK_SCRAPER_INFO: ${{ github.event.inputs.run_check_scraper_info }}
         RUN_CHECK_FEE_TAG_COMISSION: ${{ github.event.inputs.run_check_fee_tag_comission }}
+        DB_URL: jdbc:mysql://nmm-ue1-test-rds-pp1-mysql.cyfcbagzyvft.us-east-1.rds.amazonaws.com:3306/db
+        DB_USER: ppuser
+        DB_PASSWORD: uTBHF35D9QqvLMh1X1FBX93nGgnqpgBc
 
     - name: Generate Allure Report
       run: |
