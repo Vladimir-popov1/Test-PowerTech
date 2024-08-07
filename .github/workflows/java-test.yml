@@ -46,8 +46,10 @@ jobs:
 
     - name: Install ChromeDriver
       run: |
-        $chromeDriverUrl = (Invoke-RestMethod -Uri "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions.json").channels.Stable.downloads.chromedriver.url
-        Invoke-WebRequest -Uri $chromeDriverUrl -OutFile chromedriver_win32.zip
+        $chromeDriverVersion = "126.0.6533.72" # Укажите конкретную версию ChromeDriver
+        $url = "https://chromedriver.storage.googleapis.com/$chromeDriverVersion/chromedriver_win32.zip"
+        Write-Output "Downloading ChromeDriver from $url"
+        Invoke-WebRequest -Uri $url -OutFile chromedriver_win32.zip
         Expand-Archive -Path chromedriver_win32.zip -DestinationPath C:\Windows\System32
       shell: powershell
 
