@@ -63,12 +63,18 @@ jobs:
         New-Item -Path target/allure-report -ItemType Directory -Force
       shell: powershell
 
-    - name: Check database connectivity
+    - name: Install MySQL client
+      run: |
+        echo "Installing MySQL client..."
+        sudo apt-get update
+        sudo apt-get install -y mysql-client
+      shell: bash
+
+    - name: Check database connectivity with telnet
       run: |
         echo "Checking database connectivity with telnet..."
         if ! command -v telnet &> /dev/null; then
           echo "Installing telnet..."
-          sudo apt-get update
           sudo apt-get install -y telnet
         fi
         telnet nmm-ue1-test-rds-pp1-mysql.cyfcbagzyvft.us-east-1.rds.amazonaws.com 3306
@@ -141,4 +147,5 @@ jobs:
         force_orphan: false
         enable_jekyll: false
       env:
+        JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.4-7.0\x64
         JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.4-7.0\x64
