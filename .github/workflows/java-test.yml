@@ -65,28 +65,21 @@ jobs:
 
     - name: Install MySQL client
       run: |
-        echo "Installing MySQL client..."
-        sudo apt-get update
-        sudo apt-get install -y mysql-client
-      shell: bash
+        if (Test-Path -Path "C:\ProgramData\chocolatey\bin\choco.exe") {
+          choco install mysql
+        } else {
+          Write-Output "Chocolatey not found, installing MySQL client manually..."
+          Invoke-WebRequest -Uri https://dev.mysql.com/get/Downloads/MySQL-8.0/mysql-8.0.28-winx64.zip -OutFile mysql.zip
+          Expand-Archive -Path mysql.zip -DestinationPath $Env:ProgramFiles
+          $Env:Path += ";$Env:ProgramFiles\mysql-8.0.28-winx64\bin"
+        }
+      shell: powershell
 
-    - name: Check database connectivity with telnet
+    - name: Check database connectivity
       run: |
-        echo "Checking database connectivity with telnet..."
-        if ! command -v telnet &> /dev/null; then
-          echo "Installing telnet..."
-          sudo apt-get install -y telnet
-        fi
-        telnet nmm-ue1-test-rds-pp1-mysql.cyfcbagzyvft.us-east-1.rds.amazonaws.com 3306
-      shell: bash
-
-    - name: Check database connectivity with mysql
-      run: |
-        echo "Checking database connectivity with mysql..."
+        echo "Checking database connectivity..."
         mysql -h nmm-ue1-test-rds-pp1-mysql.cyfcbagzyvft.us-east-1.rds.amazonaws.com -P 3306 -u ppuser -puTBHF35D9QqvLMh1X1FBX93nGgnqpgBc -e "select 1"
-      shell: bash
-      env:
-        MYSQL_PWD: uTBHF35D9QqvLMh1X1FBX93nGgnqpgBc
+      shell: powershell
 
     - name: Run tests with Maven
       shell: powershell
