@@ -1,4 +1,4 @@
-name: Test PowerTech
+name: Java CI with Maven
 
 on:
   workflow_dispatch:
@@ -147,5 +147,4 @@ jobs:
         force_orphan: false
         enable_jekyll: false
       env:
-        JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.4-7.0\x64
         JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.4-7.0\x64
