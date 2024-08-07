@@ -46,7 +46,7 @@ jobs:
 
     - name: Install ChromeDriver
       run: |
-        Invoke-WebRequest -Uri https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_win32.zip -OutFile chromedriver_win32.zip
+        Invoke-WebRequest -Uri https://chromedriver.storage.googleapis.com/126.0.6533.72/chromedriver_win32.zip -OutFile chromedriver_win32.zip
         Expand-Archive -Path chromedriver_win32.zip -DestinationPath C:\Windows\System32
       shell: powershell
 
@@ -56,20 +56,6 @@ jobs:
         Start-Process -FilePath chrome_installer.exe -Args "/silent /install" -NoNewWindow -Wait
       shell: powershell
 
-    - name: Print runner IP address
-      run: |
-        echo "Runner IP address:"
-        ipconfig
-      shell: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.EXE -command ". '{0}'"
-
-    - name: Check database connectivity
-      run: |
-        echo "Checking database connectivity..."
-        mysql -h nmm-ue1-test-rds-pp1-mysql.cyfcbagzyvft.us-east-1.rds.amazonaws.com -P 3306 -u ppuser -puTBHF35D9QqvLMh1X1FBX93nGgnqpgBc -e "select 1" || echo "Failed to connect to database"
-      shell: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.EXE -command ". '{0}'"
-      env:
-        JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.4-7.0\x64
-
     - name: Create necessary directories
       run: |
         New-Item -Path target -ItemType Directory -Force
@@ -77,37 +63,45 @@ jobs:
         New-Item -Path target/allure-report -ItemType Directory -Force
       shell: powershell
 
-    - name: Run tests with Maven
-      shell: powershell
+    - name: Check network connectivity
       run: |
-        if ($env:RUN_CHECK_INFO_REPORTS -eq 'true') {
+        echo "Checking network connectivity..."
+        ping nmm-ue1-test-rds-pp1-mysql.cyfcbagzyvft.us-east-1.rds.amazonaws.com
+        tracert nmm-ue1-test-rds-pp1-mysql.cyfcbagzyvft.us-east-1.rds.amazonaws.com
+      shell: bash
+
+    - name: Check database connectivity
+      run: |
+        echo "Checking database connectivity..."
+        mysql -h nmm-ue1-test-rds-pp1-mysql.cyfcbagzyvft.us-east-1.rds.amazonaws.com -P 3306 -u ppuser -puTBHF35D9QqvLMh1X1FBX93nGgnqpgBc -e "select 1"
+      shell: bash
+
+    - name: Run tests with Maven
+      run: |
+        if [ "${{ github.event.inputs.run_check_info_reports }}" = "true" ]; then
           mvn test -Dtest=CheckInfoReportsPP1PP2
-        }
-        if ($env:RUN_CHECK_SCRAPER_INFO -eq 'true') {
+        fi
+        if [ "${{ github.event.inputs.run_check_scraper_info }}" = "true" ]; then
           mvn test -Dtest=CheckScraperInfo
-        }
-        if ($env:RUN_CHECK_FEE_TAG_COMISSION -eq 'true') {
+        fi
+        if [ "${{ github.event.inputs.run_check_fee_tag_comission }}" = "true" ]; then
           mvn test -Dtest=CheckFeeTagComission
-        }
+        fi
       env:
         JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.4-7.0\x64
-        SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
-        RUN_CHECK_INFO_REPORTS: ${{ github.event.inputs.run_check_info_reports }}
-        RUN_CHECK_SCRAPER_INFO: ${{ github.event.inputs.run_check_scraper_info }}
-        RUN_CHECK_FEE_TAG_COMISSION: ${{ github.event.inputs.run_check_fee_tag_comission }}
 
     - name: Generate Allure Report
       run: |
-        if (Test-Path -Path 'target/allure-results') {
+        if [ -d "target/allure-results" ]; then
           mvn allure:report
-        } else {
-          Write-Output 'No test results found in target/allure-results, skipping Allure report generation.'
-        }
-      shell: powershell
+        else
+          echo 'No test results found in target/allure-results, skipping Allure report generation.'
+        fi
+      shell: bash
 
     - name: List allure-report directory
-      run: Get-ChildItem -Recurse target/allure-report
-      shell: powershell
+      run: dir target/allure-report
+      shell: bash
 
     - name: Upload Allure Report Artifact
       if: always()
@@ -118,8 +112,8 @@ jobs:
 
     - name: Create .nojekyll file
       if: always()
-      run: New-Item -Path target/allure-report/.nojekyll -ItemType File -Force
-      shell: powershell
+      run: echo "" > target/allure-report/.nojekyll
+      shell: bash
 
     - name: Deploy Allure Report to GitHub Pages
       if: always()
@@ -132,5 +126,3 @@ jobs:
         keep_files: false
         force_orphan: false
         enable_jekyll: false
-      env:
-        JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.4-7.0\x64
