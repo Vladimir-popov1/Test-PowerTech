@@ -3,6 +3,16 @@ name: Java CI with Maven
 on:
   workflow_dispatch:
     inputs:
+      run_check_info_reports:
+        description: 'Run CheckInfoReportsPP1PP2'
+        required: true
+        default: 'false'
+        type: boolean
+      run_check_scraper_info:
+        description: 'Run CheckScraperInfo'
+        required: true
+        default: 'false'
+        type: boolean
       run_check_fee_tag_comission:
         description: 'Run CheckFeeTagComission'
         required: true
@@ -34,19 +44,48 @@ jobs:
     - name: Install Maven dependencies
       run: mvn dependency:go-offline
 
+    - name: Cache ChromeDriver
+      uses: actions/cache@v2
+      with:
+        path: |
+          C:\Windows\System32\chromedriver.exe
+          C:\Windows\System32\chromedriver_win32.zip
+        key: ${{ runner.os }}-chromedriver-${{ hashFiles('**/chromedriver_win32.zip') }}
+        restore-keys: |
+          ${{ runner.os }}-chromedriver-
+
     - name: Install ChromeDriver
       run: |
-        Invoke-WebRequest -Uri https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_win32.zip -OutFile chromedriver_win32.zip
-        Expand-Archive -Path chromedriver_win32.zip -DestinationPath C:\Windows\System32
+        if (-Not (Test-Path -Path C:\Windows\System32\chromedriver.exe)) {
+          Invoke-WebRequest -Uri https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_win32.zip -OutFile chromedriver_win32.zip
+          Expand-Archive -Path chromedriver_win32.zip -DestinationPath C:\Windows\System32
+        }
       shell: powershell
+
+    - name: Cache Google Chrome Installer
+      uses: actions/cache@v2
+      with:
+        path: chrome_installer.exe
+        key: ${{ runner.os }}-chrome-installer-${{ hashFiles('**/chrome_installer.exe') }}
+        restore-keys: |
+          ${{ runner.os }}-chrome-installer-
 
     - name: Install Google Chrome
       run: |
-        Invoke-WebRequest -Uri https://dl.google.com/chrome/install/latest/chrome_installer.exe -OutFile chrome_installer.exe
-        Start-Process -FilePath chrome_installer.exe -Args "/silent /install" -NoNewWindow -Wait
+        if (-Not (Test-Path -Path "C:\Program Files\Google\Chrome\Application\chrome.exe")) {
+          Invoke-WebRequest -Uri https://dl.google.com/chrome/install/latest/chrome_installer.exe -OutFile chrome_installer.exe
+          Start-Process -FilePath chrome_installer.exe -Args "/silent /install" -NoNewWindow -Wait
+        }
       shell: powershell
 
-    - name: Run database connectivity check
+    - name: Create necessary directories
+      run: |
+        New-Item -Path target -ItemType Directory -Force
+        New-Item -Path target/allure-results -ItemType Directory -Force
+        New-Item -Path target/allure-report -ItemType Directory -Force
+      shell: powershell
+
+    - name: Check database connectivity
       if: ${{ github.event.inputs.run_check_fee_tag_comission == 'true' }}
       run: |
         Write-Output "Checking database connectivity..."
@@ -56,12 +95,20 @@ jobs:
     - name: Run tests with Maven
       shell: powershell
       run: |
+        if ($env:RUN_CHECK_INFO_REPORTS -eq 'true') {
+          mvn test -Dtest=CheckInfoReportsPP1PP2
+        }
+        if ($env:RUN_CHECK_SCRAPER_INFO -eq 'true') {
+          mvn test -Dtest=CheckScraperInfo
+        }
         if ($env:RUN_CHECK_FEE_TAG_COMISSION -eq 'true') {
           mvn test -Dtest=CheckFeeTagComission
         }
       env:
         JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.4-7.0\x64
         SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
+        RUN_CHECK_INFO_REPORTS: ${{ github.event.inputs.run_check_info_reports }}
+        RUN_CHECK_SCRAPER_INFO: ${{ github.event.inputs.run_check_scraper_info }}
         RUN_CHECK_FEE_TAG_COMISSION: ${{ github.event.inputs.run_check_fee_tag_comission }}
 
     - name: Generate Allure Report
