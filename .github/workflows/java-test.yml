@@ -46,7 +46,8 @@ jobs:
 
     - name: Install ChromeDriver
       run: |
-        Invoke-WebRequest -Uri https://chromedriver.storage.googleapis.com/126.0.6533.72/chromedriver_win32.zip -OutFile chromedriver_win32.zip
+        $chromeDriverUrl = (Invoke-RestMethod -Uri "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions.json").channels.Stable.downloads.chromedriver.url
+        Invoke-WebRequest -Uri $chromeDriverUrl -OutFile chromedriver_win32.zip
         Expand-Archive -Path chromedriver_win32.zip -DestinationPath C:\Windows\System32
       shell: powershell
 
@@ -99,8 +100,12 @@ jobs:
         fi
       shell: bash
 
-    - name: List allure-report directory
-      run: dir target/allure-report
+    - name: Ensure Allure Report directory exists
+      run: |
+        if [ ! -d "target/allure-report" ]; then
+          mkdir -p target/allure-report
+        fi
+        touch target/allure-report/.nojekyll
       shell: bash
 
     - name: Upload Allure Report Artifact
@@ -109,11 +114,6 @@ jobs:
       with:
         name: allure-report
         path: target/allure-report
-
-    - name: Create .nojekyll file
-      if: always()
-      run: echo "" > target/allure-report/.nojekyll
-      shell: bash
 
     - name: Deploy Allure Report to GitHub Pages
       if: always()
