@@ -141,10 +141,12 @@ jobs:
         $historyPath = "target/allure-results/history"
         $maxHistories = 20
 
-        # Copy new reports to the history directory (this step may be redundant if you already do this in another part of the process)
-        # Example: Copy-Item -Path 'target/allure-results/new-reports\*' -Destination $historyPath -Recurse -Force
+        # Создаем директорию, если она не существует
+        if (-Not (Test-Path -Path $historyPath)) {
+            New-Item -Path $historyPath -ItemType Directory -Force
+        }
 
-        # Remove old reports if more than maxHistories
+        # Удаляем старые отчеты, если их больше чем maxHistories
         $directories = Get-ChildItem -Directory -Path $historyPath | Sort-Object LastWriteTime
         if ($directories.Count -gt $maxHistories) {
           $directories | Select-Object -First ($directories.Count - $maxHistories) | ForEach-Object { Remove-Item -Path $_.FullName -Recurse -Force }
@@ -164,3 +166,4 @@ jobs:
         enable_jekyll: false
       env:
         JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.4-7.0\x64
+
