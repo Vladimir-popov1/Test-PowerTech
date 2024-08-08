@@ -1,2 +1,0 @@
-"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","146506","Сравнение данных в reports(user)pp1 с reports pp2","","Thu Aug 08 12:53:52 UTC 2024","passed","Thu Aug 08 12:56:18 UTC 2024","","Сравнение данных в reports(user)pp1 с reports pp2","TestPowerTech.CheckInfoReportsPP1PP2","checkInfoReportsPP1PP2"
