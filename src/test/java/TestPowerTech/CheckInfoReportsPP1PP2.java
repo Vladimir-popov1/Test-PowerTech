@@ -1,3 +1,5 @@
+package TestPowerTech;
+
 import io.qameta.allure.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtensionContext;
