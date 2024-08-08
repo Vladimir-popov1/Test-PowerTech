@@ -18,6 +18,9 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+@Epic("Сравнение данных")
+@Feature("Сравнение данных в reports(user)pp1 с reports pp2")
+@DisplayName("Сравнение данных в reports(user)pp1 с reports pp2")
 public class CheckInfoReportsPP1PP2 {
     private WebDriver driver;
     private Map<String, String> metricsPP1;
@@ -27,6 +30,11 @@ public class CheckInfoReportsPP1PP2 {
     @Attachment(value = "Screenshot", type = "image/png")
     public byte[] takeScreenshot() {
         return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES);
+    }
+
+    @Attachment(value = "Error Log", type = "text/plain")
+    public String attachLog(String message) {
+        return message;
     }
 
     @BeforeEach
@@ -44,6 +52,8 @@ public class CheckInfoReportsPP1PP2 {
     }
 
     @Test
+    @Severity(value = SeverityLevel.CRITICAL)
+    @Owner(value = "В.В.П")
     @Order(6)
     @Story("Сравнение данных в reports(user)pp1 с reports pp2")
     @DisplayName("Сравнение данных в reports(user)pp1 с reports pp2")
@@ -52,13 +62,13 @@ public class CheckInfoReportsPP1PP2 {
             Allure.step("Авторизация в PP1", () -> {
                 AuthorizationPP1 authorization = new AuthorizationPP1();
                 authorization.authorizePP1(driver); // Авторизация ПП1
+                Allure.addAttachment("Скриншот после авторизации в PP1", new ByteArrayInputStream(takeScreenshot()));
             });
 
-            Allure.step("Получение отчетов из PP1", () -> {
-                Reports reports = new Reports();
-                reports.reportsPP1(driver);
-            });
-
+//            Allure.step("Получение отчетов из PP1", () -> {
+//                Reports reports = new Reports();
+//                reports.reportsPP1(driver);
+//            });
             Allure.step("Выбор аккаунта и отчетов", () -> {
                 WebDriverWait wait1 = new WebDriverWait(driver, Duration.ofSeconds(30));
                 driver.findElement(By.cssSelector("a[href='/accounts']")).click();
@@ -79,6 +89,7 @@ public class CheckInfoReportsPP1PP2 {
                 lastDateReports.sendKeys(newDaysOneStr);
                 Thread.sleep(10000);
                 driver.findElement(By.cssSelector("button[id=btnApplyDates]")).click();
+                Allure.addAttachment("Скриншот после выбора дат в PP1", new ByteArrayInputStream(takeScreenshot()));
             });
             Thread.sleep(8000);
 
@@ -103,6 +114,7 @@ public class CheckInfoReportsPP1PP2 {
                 }
                 metricsPP1 = metrics; // Сохранение метрик PP1
                 metrics.forEach((k, v) -> System.out.println(k + ": " + v));
+                Allure.addAttachment("Скриншот метрик из PP1", new ByteArrayInputStream(takeScreenshot()));
             });
 
             Allure.step("Авторизация в PP2 и выбор отчетов", () -> {
@@ -181,6 +193,7 @@ public class CheckInfoReportsPP1PP2 {
                 } catch (Exception e) {
                     System.out.println("Кнопка дня '" + targetDay + "' не найдена или не кликабельна. Ошибка: " + e.getMessage());
                     takeScreenshot(); // Сохранение скриншота при ошибке
+                    attachLog("Ошибка выбора даты: " + e.getMessage());
                     throw e; // Проброс исключения для корректного завершения теста
                 }
 
@@ -222,6 +235,7 @@ public class CheckInfoReportsPP1PP2 {
 
         } catch (Exception e) {
             takeScreenshot(); // Сохранение скриншота при любом исключении
+            attachLog("Ошибка выполнения теста: " + e.getMessage());
             throw e; // Проброс исключения для корректного завершения теста
         }
     }
@@ -275,6 +289,40 @@ public class CheckInfoReportsPP1PP2 {
         } catch (NumberFormatException e) {
             System.out.println("Ошибка преобразования значений: " + value1 + " или " + value2);
             return false;
+        }
+    }
+
+    // Реализация TestWatcher для логирования и создания скриншотов при падении тестов
+    static class TestResultLogger implements TestWatcher {
+        @Override
+        public void testFailed(ExtensionContext context, Throwable cause) {
+            WebDriver driver = WebDriverHolder.getDriver();
+            if (driver != null) {
+                CheckInfoReportsPP1PP2 testClassInstance = (CheckInfoReportsPP1PP2) context.getRequiredTestInstance();
+                testClassInstance.takeScreenshot(); // Сохранение скриншота при ошибке
+                testClassInstance.attachLog("Ошибка выполнения теста: " + cause.getMessage());
+            }
+        }
+
+        @Override
+        public void testSuccessful(ExtensionContext context) {
+            // Логика при успешном прохождении теста (если требуется)
+        }
+    }
+
+    @RegisterExtension
+    static TestResultLogger testResultLogger = new TestResultLogger();
+
+    // Класс для хранения экземпляра WebDriver
+    static class WebDriverHolder {
+        private static WebDriver driver;
+
+        public static void setDriver(WebDriver webDriver) {
+            driver = webDriver;
+        }
+
+        public static WebDriver getDriver() {
+            return driver;
         }
     }
 }
