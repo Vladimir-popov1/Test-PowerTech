@@ -136,6 +136,21 @@ jobs:
       run: New-Item -Path target/allure-report/.nojekyll -ItemType File -Force
       shell: powershell
 
+    - name: Manage Allure History Reports
+      run: |
+        $historyPath = "target/allure-results/history"
+        $maxHistories = 20
+
+        # Copy new reports to the history directory (this step may be redundant if you already do this in another part of the process)
+        # Example: Copy-Item -Path 'target/allure-results/new-reports\*' -Destination $historyPath -Recurse -Force
+
+        # Remove old reports if more than maxHistories
+        $directories = Get-ChildItem -Directory -Path $historyPath | Sort-Object LastWriteTime
+        if ($directories.Count -gt $maxHistories) {
+          $directories | Select-Object -First ($directories.Count - $maxHistories) | ForEach-Object { Remove-Item -Path $_.FullName -Recurse -Force }
+        }
+      shell: powershell
+
     - name: Deploy Allure Report to GitHub Pages
       if: always()
       uses: peaceiris/actions-gh-pages@v3
