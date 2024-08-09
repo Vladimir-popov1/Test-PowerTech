@@ -82,14 +82,24 @@ jobs:
       run: |
         New-Item -Path target -ItemType Directory -Force
         New-Item -Path target/allure-results -ItemType Directory -Force
-        New-Item -Path target/allure-report -ItemType Directory -Force
       shell: powershell
 
-    - name: Check database connectivity
-      if: ${{ github.event.inputs.run_check_fee_tag_comission == 'true' }}
+    - name: Load test report history
+      uses: actions/checkout@v2
+      if: always()
+      continue-on-error: true
+      with:
+        ref: gh-pages
+        path: history-archive
+
+    - name: Copy Allure report history
       run: |
-        Write-Output "Checking database connectivity..."
-        mysql -h nmm-ue1-test-rds-pp1-mysql.cyfcbagzyvft.us-east-1.rds.amazonaws.com -P 3306 -u ppuser -puTBHF35D9QqvLMh1X1FBX93nGgnqpgBc -e "select 1"
+        $historySourcePath = "history-archive/history"
+        $historyTargetPath = "target/allure-results/history"
+
+        if (Test-Path -Path $historySourcePath) {
+          Copy-Item -Path $historySourcePath -Destination $historyTargetPath -Recurse -Force
+        }
       shell: powershell
 
     - name: Run tests with Maven
@@ -110,16 +120,6 @@ jobs:
         RUN_CHECK_INFO_REPORTS: ${{ github.event.inputs.run_check_info_reports }}
         RUN_CHECK_SCRAPER_INFO: ${{ github.event.inputs.run_check_scraper_info }}
         RUN_CHECK_FEE_TAG_COMISSION: ${{ github.event.inputs.run_check_fee_tag_comission }}
-
-    - name: Copy Allure report history
-      run: |
-        $reportHistoryPath = "target/allure-report/history"
-        $resultsHistoryPath = "target/allure-results/history"
-
-        if (Test-Path -Path $reportHistoryPath) {
-          Copy-Item -Path $reportHistoryPath -Destination $resultsHistoryPath -Recurse -Force
-        }
-      shell: powershell
 
     - name: Generate Allure Report
       run: |
