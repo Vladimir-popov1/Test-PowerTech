@@ -130,6 +130,33 @@ jobs:
         }
       shell: powershell
 
+    - name: Copy history to allure-report
+      run: |
+        $historySourcePath = "target/allure-results/history"
+        $historyTargetPath = "target/allure-report/history"
+
+        if (Test-Path -Path $historySourcePath) {
+          Copy-Item -Path $historySourcePath -Destination $historyTargetPath -Recurse -Force
+        }
+      shell: powershell
+
+    - name: Manage Allure History Reports
+      run: |
+        $historyPath = "target/allure-results/history"
+        $maxHistories = 20
+
+        # Create directory if it doesn't exist
+        if (-Not (Test-Path -Path $historyPath)) {
+            New-Item -Path $historyPath -ItemType Directory -Force
+        }
+
+        # Clean up old reports if there are more than maxHistories
+        $directories = Get-ChildItem -Directory -Path $historyPath | Sort-Object LastWriteTime
+        if ($directories.Count -gt $maxHistories) {
+          $directories | Select-Object -First ($directories.Count - $maxHistories) | ForEach-Object { Remove-Item -Path $_.FullName -Recurse -Force }
+        }
+      shell: powershell
+
     - name: List allure-report directory
       run: Get-ChildItem -Recurse target/allure-report
       shell: powershell
@@ -144,23 +171,6 @@ jobs:
     - name: Create .nojekyll file
       if: always()
       run: New-Item -Path target/allure-report/.nojekyll -ItemType File -Force
-      shell: powershell
-
-    - name: Manage Allure History Reports
-      run: |
-        $historyPath = "target/allure-results/history"
-        $maxHistories = 20
-
-        # Создаем директорию, если она не существует
-        if (-Not (Test-Path -Path $historyPath)) {
-            New-Item -Path $historyPath -ItemType Directory -Force
-        }
-
-        # Удаляем старые отчеты, если их больше чем maxHistories
-        $directories = Get-ChildItem -Directory -Path $historyPath | Sort-Object LastWriteTime
-        if ($directories.Count -gt $maxHistories) {
-          $directories | Select-Object -First ($directories.Count - $maxHistories) | ForEach-Object { Remove-Item -Path $_.FullName -Recurse -Force }
-        }
       shell: powershell
 
     - name: Deploy Allure Report to GitHub Pages
