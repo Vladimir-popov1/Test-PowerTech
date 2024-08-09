@@ -111,6 +111,16 @@ jobs:
         RUN_CHECK_SCRAPER_INFO: ${{ github.event.inputs.run_check_scraper_info }}
         RUN_CHECK_FEE_TAG_COMISSION: ${{ github.event.inputs.run_check_fee_tag_comission }}
 
+    - name: Copy Allure report history
+      run: |
+        $reportHistoryPath = "target/allure-report/history"
+        $resultsHistoryPath = "target/allure-results/history"
+
+        if (Test-Path -Path $reportHistoryPath) {
+          Copy-Item -Path $reportHistoryPath -Destination $resultsHistoryPath -Recurse -Force
+        }
+      shell: powershell
+
     - name: Generate Allure Report
       run: |
         if (Test-Path -Path 'target/allure-results') {
@@ -166,4 +176,3 @@ jobs:
         enable_jekyll: false
       env:
         JAVA_HOME: C:\hostedtoolcache\windows\Java_Temurin-Hotspot_jdk\21.0.4-7.0\x64
-
